@@ -1,0 +1,135 @@
+@charset "utf-8";
+
+header {
+	font-size: 1.5em;
+	color: #fff;
+	text-transform: uppercase;
+	height: 45px;
+	margin-bottom: 20px;
+	background-color: #383838;
+	box-shadow: 0px 2px 2px #ccc;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 60px;
+	font-weight: 600;
+	box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
+
+body {
+	font-size: 12px;
+	font-family: Arial, Helvetica, sans-serif;
+	margin: 0px;
+	font-weight: normal;
+	background: #e8e8e8;
+}
+
+body .ui-toolbar {
+	border: unset !important;
+	border-radius: 15px !important;
+	display: flex;
+	justify-content: space-around;
+	align-content: center;
+	align-items: center;
+}
+
+.ui-toolbar-group-left, .ui-toolbar-group-right {
+	width: 100%;
+	justify-content: center;
+}
+
+body .ui-panelgrid .ui-panelgrid-cell {
+	padding: 0.5rem;
+}
+
+body .ui-datatable .ui-paginator.ui-paginator-bottom {
+	border-width: 0;
+	border-radius: 15px !important;
+	margin-top: 20px;
+}
+
+body .ui-button {
+	background: #4717f6;
+}
+
+body .ui-datatable thead th:nth-child(1) {
+	width: 40px;
+}
+
+body .ui-datatable thead th {
+	text-align: center;
+}
+
+body .ui-datatable .ui-datatable-data>tr>td:nth-child(1) {
+	text-align: center;
+}
+
+.title {
+	text-align: center;
+}
+
+#content {
+	padding: 20px;
+	max-width: 1366px;
+	margin: 0 auto;
+}
+
+footer {
+	border-top: 1px solid #ccc;
+	padding: 5px 8px;
+	margin-top: 20px;
+	margin-bottom: 10px;
+}
+
+h1 {
+	font-size: 24px;
+	font-weight: 500;
+	padding: 0px;
+	margin: 0px;
+	margin-bottom: 10px;
+}
+
+h2 {
+	font-weight: 600;
+}
+
+.ui-panelgrid.showcase-text-align-center .ui-grid-responsive .ui-panelgrid-cell
+	{
+	text-align: center;
+}
+
+.customPanelGrid .ui-panelgrid-content {
+	align-items: center;
+}
+
+.ui-datatable-empty-message {
+	text-align: center;
+}
+
+.ui-grid .ui-grid-row {
+	align-items: center;
+}
+
+.text-center {
+	width: 150px !important;
+	text-align: center !important;
+}
+
+.div-full {
+	width: 100%;
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+}
+
+.btn-icon {
+	margin: 0px 5px !important;
+}
+
+.ui-datatable table {
+	border-radius: 68px;
+}
+
+.center {
+	text-align: center !important;
+}

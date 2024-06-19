@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:f="http://xmlns.jcp.org/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	template="WEB-INF/template/layout.xhtml">
+
+	<ui:define name="content">
+		<f:metadata>
+			<f:viewAction action="#{personBean.allPersons}" />
+		</f:metadata>
+
+		<h:form id="frm">
+
+			<p:messages id="messages" showDetail="false" closable="false" />
+
+			<p:toolbar id="toolbar">
+				<f:facet name="left">
+
+					<p:inputText class="btn-icon" id="termSearch"
+						placeholder="Buscar pelo NOME..." size="30"
+						value="#{personBean.toolbarSearchValue}" />
+
+					<p:commandButton class="btn-icon"
+						actionListener="#{personBean.searchByName}" value="Pesquisar"
+						icon="pi pi-search" update="personsDataTable messages"
+						process="@this termSearch" />
+
+					<p:divider layout="vertical" />
+
+					<p:commandButton class="btn-icon" value="Nova Pessoa"
+						icon="pi pi-plus" actionListener="#{personBean.prepareNewPerson}"
+						disabled="#{personBean.personSelecied}"
+						oncomplete="PF('personDialogWidgetVar').show()"
+						update="personNewDialog" process="@this">
+						<p:resetInput target="personNewDialog" />
+					</p:commandButton>
+
+					<p:divider layout="vertical" />
+
+					<div class="btn-icon text-center">Gerenciar Pessoa
+						Selecionada</div>
+
+					<p:commandButton class="btn-icon" title="Editar Pessoa"
+						icon="pi pi-user-edit" disabled="#{not personBean.personSelecied}"
+						oncomplete="PF('personEditDialogWidgetVar').show()"
+						update="personEditDialog" process="@this">
+						<p:resetInput target="personEditDialog" />
+					</p:commandButton>
+
+					<p:commandButton class="btn-icon" title="Gerenciar Endereços"
+						icon="pi pi-users"
+						actionListener="#{personBean.prepareEditAddress}"
+						disabled="#{not personBean.personSelecied}"
+						oncomplete="PF('managerAddressDialogWidgetVar').show()"
+						update="managerAddressDialog" process="@this">
+						<p:resetInput target="managerAddressDialog" />
+					</p:commandButton>
+
+					<p:commandButton class="btn-icon" title="Adicionar Endereço"
+						icon="pi pi-home"
+						actionListener="#{personBean.prepareEditAddress}"
+						disabled="#{not personBean.personSelecied}"
+						oncomplete="PF('addressDialogWidgetVar').show()"
+						update="personAddressDialog" process="@this">
+						<p:resetInput target="personAddressDialog" />
+					</p:commandButton>
+
+					<p:commandButton class="btn-icon" title="Excluir Pessoa"
+						icon="pi pi-trash" actionListener="#{personBean.deletePerson}"
+						disabled="#{not personBean.personSelecied}"
+						update="messages personsDataTable toolbar" process="@this">
+						<p:confirm icon="pi pi-exclamation-triangle"
+							header="Confirmação de Exclusão"
+							message="Deseja excluir a Pessoa: #{personBean.person.name} ?" />
+					</p:commandButton>
+
+					<p:divider layout="vertical" />
+
+					<p:commandButton title="Download .xls" value="Exportar"
+						icon="pi pi-file-excel" styleClass="mr-2 mb-2" ajax="false">
+						<p:dataExporter type="xls" target="personsDataTable"
+							fileName="persons" />
+					</p:commandButton>
+
+				</f:facet>
+			</p:toolbar>
+
+			<p:spacer height="20px" />
+
+			<p:dataTable class="table" id="personsDataTable"
+				value="#{personBean.listPersons}" var="person"
+				emptyMessage="Nenhum registro encontrado" paginator="true" rows="10"
+				paginatorPosition="bottom" rowKey="#{person.id}"
+				selectionMode="single" selection="#{personBean.person}">
+
+				<p:ajax event="rowSelect" update="frm:toolbar" />
+				<p:ajax event="rowUnselect" update="frm:toolbar" />
+
+				<p:column headerText="Id" sortBy="#{person.id}">
+					<h:outputText value="#{person.id}" />
+				</p:column>
+
+				<p:column headerText="Data Cad" sortBy="#{person.dateCreate}"
+					class="center">
+					<h:outputText value="#{person.dateCreate}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Data Nasc" sortBy="#{person.dateBirth}"
+					class="center">
+					<h:outputText value="#{person.dateBirth}">
+						<f:convertDateTime pattern="dd/MM/yyyy" />
+					</h:outputText>
+				</p:column>
+
+				<p:column headerText="Nome" sortBy="#{person.name}">
+					<h:outputText value="#{person.name}" />
+				</p:column>
+
+				<p:column headerText="CPF" sortBy="#{person.cpf}" class="center">
+					<h:outputText value="#{person.cpf}" />
+				</p:column>
+
+				<p:column headerText="Sexo" sortBy="#{person.gender}" class="center">
+					<h:outputText
+						value="#{person.gender == 'M' ? 'Masculino' : 'Feminino' }" />
+				</p:column>
+
+				<p:column headerText="Telefone" sortBy="#{person.phone}"
+					class="center">
+					<h:outputText value="#{person.phone}" />
+				</p:column>
+
+				<p:column headerText="E-mail" sortBy="#{person.email}">
+					<h:outputText value="#{person.email}" />
+				</p:column>
+			</p:dataTable>
+
+			<p:dialog id="personNewDialog" header="Cadastrar Pessoa"
+				widgetVar="personDialogWidgetVar" modal="true" resizable="false"
+				closeOnEscape="true"
+				style="max-width:800px; max-height: 650px; overflow: auto;">
+
+				<p:messages id="msgsDialog" showDetail="false" closable="false" />
+				<p:defaultCommand target="saveDialogBtn" scope="personNewDialog" />
+
+				<p:panelGrid columns="4" id="personPanelGrid"
+					rendered="#{personBean.person ne null}"
+					columnClasses="ui-grid-col-3,ui-grid-col-9,ui-grid-col-3,ui-grid-col-9"
+					layout="grid" styleClass="ui-panelgrid-blank ui-fluid"
+					style="border:0px none; background-color:transparent;">
+
+					<p:row styleClass="my-heading-row full-center"
+						style="font-weight: bold">Dados Pessoais</p:row>
+
+					<p:outputLabel value="Nome:" for="name" />
+					<h:panelGroup>
+						<p:inputText id="name" value="#{personBean.person.name}"
+							label="Nome Completo" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Data Nasc:" for="dateBirth" />
+					<h:panelGroup>
+						<p:inputMask id="dateBirth" value="#{personBean.person.dateBirth}"
+							label="Data de Nasc" mask="99/99/9999" required="true">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</p:inputMask>
+					</h:panelGroup>
+
+					<p:outputLabel value="Genero:" for="gender" />
+					<h:panelGroup>
+						<p:selectOneMenu id="gender" value="#{personBean.person.gender}"
+							required="true">
+							<f:selectItem itemLabel="Selecione Um" itemValue="" />
+							<f:selectItem itemLabel="Masculino" itemValue="M" />
+							<f:selectItem itemLabel="Feminino" itemValue="F" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+
+					<p:outputLabel value="CPF: " for="cpf" />
+					<h:panelGroup>
+						<p:inputMask id="cpf" value="#{personBean.person.cpf}" label="CPF"
+							mask="999.999.999-99" required="true">
+							<f:validateLength minimum="14" maximum="14" />
+						</p:inputMask>
+					</h:panelGroup>
+
+					<p:outputLabel value="E-mail:" for="email" />
+					<h:panelGroup>
+						<p:inputText id="email" value="#{personBean.person.email}"
+							label="E-mail" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Telefone:" for="phone" />
+
+					<h:panelGroup>
+						<p:inputMask id="phone" value="#{personBean.person.phone}"
+							label="Telefone" required="true" mask="(99) 99999-9999"
+							validateMask="true" maxlength="16" />
+					</h:panelGroup>
+
+					<p:row id="my-row-id" styleClass="my-heading-row"
+						style="font-weight: bold">Endereço</p:row>
+
+					<p:outputLabel value="Rua:" for="street" />
+					<h:panelGroup>
+						<p:inputText id="street" value="#{personBean.address.street}"
+							label="Nome Completo" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Numero:" for="number" />
+					<h:panelGroup>
+						<p:inputText id="number" value="#{personBean.address.number}"
+							label="Numero" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Bairro:" for="district" />
+					<h:panelGroup>
+						<p:inputText id="district" value="#{personBean.address.district}"
+							label="Bairro" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Cidade:" for="city" />
+					<h:panelGroup>
+						<p:inputText id="city" value="#{personBean.address.city}"
+							label="Cidade" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Estado:" for="state" />
+					<h:panelGroup>
+						<p:inputText id="state" value="#{personBean.address.state}"
+							label="Estado" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="CEP:" for="cep" />
+					<h:panelGroup>
+						<p:inputMask id="cep" value="#{personBean.address.cep}"
+							label="CEP" mask="99999-999" required="true" />
+					</h:panelGroup>
+				</p:panelGrid>
+
+				<div class="div-full">
+					<p:commandButton class="full-center" id="saveDialogBtn"
+						value="Salvar" actionListener="#{personBean.savePerson}"
+						update="personPanelGrid msgsDialog"
+						oncomplete="if (!args.validationFailed) PF('personDialogWidgetVar').hide()"
+						process="personNewDialog" />
+				</div>
+
+			</p:dialog>
+
+			<p:dialog id="personEditDialog"
+				header="Editar Pessoa - #{personBean.person.name}"
+				widgetVar="personEditDialogWidgetVar" modal="true" resizable="false"
+				closeOnEscape="true" width="800"
+				style="max-width:800px; max-height: 650px; overflow: auto;">
+
+				<p:messages id="msgsEditDialog" showDetail="false" closable="false" />
+				<p:defaultCommand target="saveEditDialogBtn" scope="msgsEditDialog" />
+
+				<p:panelGrid columns="4" id="personEditPanelGrid"
+					rendered="#{personBean.person ne null}"
+					columnClasses="ui-grid-col-3,ui-grid-col-9,ui-grid-col-3,ui-grid-col-9"
+					layout="grid" styleClass="ui-panelgrid-blank ui-fluid"
+					style="border:0px none; background-color:transparent;">
+
+					<p:outputLabel value="Nome:" for="name" />
+					<h:panelGroup>
+						<p:inputText id="name-1" value="#{personBean.person.name}"
+							label="Nome Completo" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Data Nasc:" for="dateBirth" />
+					<h:panelGroup>
+						<p:inputMask id="dateBirth-1"
+							value="#{personBean.person.dateBirth}" label="Data de Nascimento"
+							mask="99/99/9999" required="true">
+							<f:convertDateTime pattern="dd/MM/yyyy" />
+						</p:inputMask>
+					</h:panelGroup>
+
+					<p:outputLabel for="gender" value="Genero: " />
+					<h:panelGroup>
+						<p:selectOneMenu id="gender-1" value="#{personBean.person.gender}"
+							required="true">
+							<f:selectItem itemLabel="" itemValue="" />
+							<f:selectItem itemLabel="Masculino" itemValue="M" />
+							<f:selectItem itemLabel="Feminino" itemValue="F" />
+						</p:selectOneMenu>
+					</h:panelGroup>
+
+					<p:outputLabel value="CPF: " for="cpf" />
+					<h:panelGroup>
+						<p:inputMask id="cpf-1" value="#{personBean.person.cpf}"
+							label="CPF" mask="999.999.999-99" required="true">
+							<f:validateLength minimum="14" maximum="14" />
+						</p:inputMask>
+					</h:panelGroup>
+
+					<p:outputLabel value="E-mail: " for="email" />
+					<h:panelGroup>
+						<p:inputText id="email-1" value="#{personBean.person.email}"
+							label="E-mail" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Telefone: " for="phone" />
+					<h:panelGroup>
+						<p:inputMask id="phone-1" value="#{personBean.person.phone}"
+							label="Telefone" required="true" mask="(99) 99999-9999"
+							validateMask="true" maxlength="16" />
+					</h:panelGroup>
+				</p:panelGrid>
+
+				<div class="div-full">
+					<p:commandButton id="saveEditDialogBtn" value="Salvar"
+						actionListener="#{personBean.editPerson}"
+						update="personEditPanelGrid msgsEditDialog"
+						oncomplete="if (!args.validationFailed) PF('personEditDialogWidgetVar').hide()"
+						process="personEditDialog" />
+				</div>
+
+			</p:dialog>
+
+			<p:dialog id="personAddressDialog"
+				header="Adicionar Endereços - #{personBean.person.name}"
+				widgetVar="addressDialogWidgetVar" modal="true" resizable="false"
+				closeOnEscape="true"
+				style="max-width:800px; max-height: 650px; overflow: auto;">
+
+				<p:messages id="msgsAddressDialog" showDetail="false"
+					closable="false" />
+				<p:defaultCommand target="saveAddressDialogBtn"
+					scope="msgsAddressDialog" />
+
+				<p:panelGrid columns="4" id="addressPanelGrid"
+					rendered="#{personBean.address ne null}"
+					columnClasses="ui-grid-col-3,ui-grid-col-9,ui-grid-col-3,ui-grid-col-9"
+					layout="grid" styleClass="ui-panelgrid-blank ui-fluid"
+					style="border:0px none; background-color:transparent;">
+
+					<p:outputLabel value="Rua: " for="street" />
+					<h:panelGroup>
+						<p:inputText id="street-2"
+							value="#{personBean.addressForm.street}" label="Rua"
+							required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Numero: " for="number" />
+					<h:panelGroup>
+						<p:inputText id="number-2"
+							value="#{personBean.addressForm.number}" label="Numero"
+							required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Bairro: " for="district" />
+					<h:panelGroup>
+						<p:inputText id="district-2"
+							value="#{personBean.addressForm.district}" label="Bairro"
+							required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Cidade: " for="city" />
+					<h:panelGroup>
+						<p:inputText id="city-2" value="#{personBean.addressForm.city}"
+							label="Cidade" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="Estado: " for="state" />
+					<h:panelGroup>
+						<p:inputText id="state-2" value="#{personBean.addressForm.state}"
+							label="Estado" required="true" />
+					</h:panelGroup>
+
+					<p:outputLabel value="CEP: " for="cep" />
+					<h:panelGroup>
+						<p:inputMask id="cep-2" value="#{personBean.addressForm.cep}"
+							label="CEP" mask="99999-999" required="true" />
+					</h:panelGroup>
+				</p:panelGrid>
+
+				<div id="my-row-id-2" class="div-full">
+					<p:commandButton id="saveAddressDialogBtn" value="Salvar"
+						actionListener="#{personBean.saveEndereco}"
+						update="addressPanelGrid msgsAddressDialog"
+						oncomplete="if (!args.validationFailed) PF('addressDialogWidgetVar').hide()"
+						process="personAddressDialog" />
+				</div>
+
+			</p:dialog>
+
+			<p:dialog id="managerAddressDialog"
+				header="Gerenciar Endereços - #{personBean.person.name}"
+				widgetVar="managerAddressDialogWidgetVar" modal="true"
+				resizable="false" closeOnEscape="true"
+				style="max-width:800px; max-height: 650px; overflow: auto;">
+
+				<p:messages id="msgsRemoveDialog" showDetail="false"
+					closable="false" />
+
+				<p:dataTable id="addressDataTable"
+					value="#{personBean.listAddresses}" var="address"
+					emptyMessage="Nenhum registro encontrado" paginator="true" rows="5"
+					paginatorPosition="bottom" rowKey="#{address.id}"
+					selectionMode="single" selection="#{personBean.address}">
+
+					<p:ajax event="rowSelect" update="frm:addressDataTable" />
+					<p:ajax event="rowUnselect" update="frm:addressDataTable" />
+
+					<p:column headerText="id" sortBy="#{address.id}" class="center">
+						<h:outputText value="#{address.id}" />
+					</p:column>
+
+					<p:column headerText="CEP" sortBy="#{address.cep}" class="center">
+						<h:outputText value="#{address.cep}" />
+					</p:column>
+
+					<p:column headerText="End." sortBy="#{address.street}">
+						<h:outputText value="#{address.street} #{address.number}" />
+					</p:column>
+
+					<p:column headerText="Bairro" sortBy="#{address.district}">
+						<h:outputText value="#{address.district}" />
+					</p:column>
+
+					<p:column headerText="Cid." sortBy="#{address.city}">
+						<h:outputText value="#{address.city}" />
+					</p:column>
+
+					<p:column headerText="UF" sortBy="#{address.state}" class="center">
+						<h:outputText value="#{address.state}" />
+					</p:column>
+
+					<p:column headerText="Ações" class="center">
+						<p:commandButton id="managerAddressDialogBtn" process="@this"
+							disabled="#{not personBean.addressSelected}"
+							title="Excluir Endereço" icon="pi pi-trash"
+							actionListener="#{personBean.deleteAddress}">
+							<p:confirm icon="pi pi-exclamation-triangle"
+								header="Confirmação de Exclusão"
+								message="Deseja excluir a Endereço?" />
+						</p:commandButton>
+					</p:column>
+
+				</p:dataTable>
+			</p:dialog>
+
+		</h:form>
+	</ui:define>
+</ui:composition>
